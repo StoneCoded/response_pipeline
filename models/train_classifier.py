@@ -1,16 +1,16 @@
 import sys
+#for data manipulation
 import pandas as pd
 import joblib
-import matplotlib.pyplot as plt
 from sqlalchemy import create_engine
-import pickle
+#for natural language processing
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import nltk
 nltk.download(['punkt', 'wordnet', 'stopwords'])
-
+#for model
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
@@ -18,8 +18,6 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.multioutput import MultiOutputClassifier
-
-
 
 def load_data(database_filepath):
     '''
@@ -52,7 +50,7 @@ def tokenize(text, stop = True):
     tokens = word_tokenize(text)
     #Remove Stop Words
     if stop == True:
-        tokens = [w for w in tokens if w not in stopwords.words("english")]
+        tokens = [w for w in tokens if w not in stopwords.words('english')]
     #Stem, lem, lower and strip
     clean_tokens = []
     for tok in tokens:
@@ -62,15 +60,11 @@ def tokenize(text, stop = True):
     return tokens
 
 def build_model():
-    # pipeline = Pipeline([('vect',CountVectorizer(tokenizer = tokenize)),
-    #                      ('tfidf',TfidfTransformer()),
-    #                      ('clf', MultiOutputClassifier(RandomForestClassifier()
-    #                         ))
-    #                     ])
-    # parameters ={
-    #             'clf__estimator__n_estimators': [30, 60],
-    #             'clf__estimator__min_samples_split': [2, 4]
-    #              }
+    '''
+    Builds pipeline model,
+    uses GridSearchCV to refine model
+    returns model ready for fitting to data.
+    '''
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -79,17 +73,20 @@ def build_model():
 
     # small set of parameters because of time
     parameters = {
-        'vect__max_df':[0.75,1.0],
-        'clf__estimator__n_estimators': [20, 50]
+        'clf__estimator__n_estimators': [30, 60],
+        'clf__estimator__min_samples_split': [2, 4]
     }
 
     cv = GridSearchCV(pipeline, param_grid=parameters, verbose=10)
-    # return pipeline
-    # train classifier
-    # cv = GridSearchCV(pipeline, param_grid=parameters)
     return cv
 
 def evaluate_model(model, X_test, y_test, labels):
+    '''
+    evaluates models accuracy by producing a classification report for each
+    category along with an overall accuracy
+
+    *for added fun it prints the best estimator from the GridSearchCV*
+    '''
     y_pred = model.predict(X_test)
     for x, col in enumerate(labels):
         print(col)
@@ -99,9 +96,14 @@ def evaluate_model(model, X_test, y_test, labels):
     print(model.best_estimator_)
 
 def save_model(model, model_filepath):
-    '''save as pickle file'''
+    '''
+    Args: model, model_filepath
+
+    Returns: none
+    ––––––––––––––––––––––––––––––––––
+    Saves model using joblib and compresses slightly for a smaller filesize
+    '''
     joblib.dump(model, model_filepath, compress=3)
-    # pickle.dump(model, open(model_filepath, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 
 def main():
     if len(sys.argv) == 3:
