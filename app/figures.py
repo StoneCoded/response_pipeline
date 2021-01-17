@@ -1,11 +1,15 @@
-import plotly.graph_objs as go
+#for dataframes
 import pandas as pd
+#for tokenize function
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import nltk
 nltk.download(['punkt', 'wordnet', 'stopwords'])
+
+#for figure creation
+import plotly.graph_objs as go
 import plotly.express as px
 
 #define tokenize function for later use
@@ -85,15 +89,16 @@ def return_figures(df):
     totals = df.iloc[:,4:].sum(axis=1)
     graph_two = px.histogram(x=totals,
                              nbins = 9,
-                             labels={'x':'Number of Categories',
-                                     'y':'Total Messages'
-                                },
+                             labels={
+                             'x':'Number of Categories',
+                             'y':'Total Messages'
+                             },
                              range_x = [0,18],
                              title = 'Number of Categories per Message'
-                        ).update(layout=dict(title=dict(x=0.5)))
+                      ).update(layout=dict(title=dict(x=0.5)))
 
 
-
+    #get each message and find length of each
     m_list = df['message'].unique().tolist()
     mlen_list = [len(tokenize(message)) for message in m_list]
 
