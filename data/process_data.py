@@ -17,48 +17,52 @@ def load_data(messages_filepath = 'data/disaster_messages.csv', categories_filep
     categories = pd.read_csv(categories_filepath)
     df = messages.merge(categories, on='id')
     return df
-def taxonomy(df):
-    '''
-    Args: def
 
-    Returns: df
-    ––––––––––––––––––––––––––––––
-    Takes in a dataframe and groups some of the categories together.
-    Intended for specific use, not general.
+# –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+# def taxonomy(df):
+#     '''
+#     Args: def
+#
+#     Returns: df
+#     ––––––––––––––––––––––––––––––
+#     Takes in a dataframe and groups some of the categories together.
+#     Intended for specific use, not general.
+#
+#     '''
+#     df = df.copy()
+#     df['Human_Affected'] = df[['missing_people','child_alone', 'death',\
+#                                        'refugees']].sum(axis=1)
+#     df['General_Aid'] = df[['aid_related','other_aid', \
+#                                     'aid_centers']].sum(axis=1)
+#     df['Medical'] = df[['medical_help','medical_products', \
+#                                 'hospitals']].sum(axis=1)
+#     df['Human_Aid'] = df[['military','security', \
+#                                   'search_and_rescue']].sum(axis=1)
+#     df['Basic_Needs'] = df[['electricity','food', 'money', 'tools', \
+#                                     'clothing', 'shelter']].sum(axis=1)
+#     df['Infrastructure'] = df[['buildings','infrastructure_related', \
+#                                'other_infrastructure', 'shops', 'transport'] \
+#                                ].sum(axis=1)
+#     df['Area_Conditions'] = df[['weather_related','floods', 'storm', 'fire',\
+#                            'earthquake', 'cold', 'other_weather']].sum(axis=1)
 
-    '''
-    df = df.copy()
-    df['Human_Affected'] = df[['missing_people','child_alone', 'death',\
-                                       'refugees']].sum(axis=1)
-    df['General_Aid'] = df[['aid_related','other_aid', \
-                                    'aid_centers']].sum(axis=1)
-    df['Medical'] = df[['medical_help','medical_products', \
-                                'hospitals']].sum(axis=1)
-    df['Human_Aid'] = df[['military','security', \
-                                  'search_and_rescue']].sum(axis=1)
-    df['Basic_Needs'] = df[['electricity','food', 'money', 'tools', \
-                                    'clothing', 'shelter']].sum(axis=1)
-    df['Infrastructure'] = df[['buildings','infrastructure_related', \
-                               'other_infrastructure', 'shops', 'transport'] \
-                               ].sum(axis=1)
-    df['Area_Conditions'] = df[['weather_related','floods', 'storm', 'fire',\
-                           'earthquake', 'cold', 'other_weather']].sum(axis=1)
     #Ungrouped categories 'related', 'request', 'offer', 'water', 'direct_report'
     #as they are either ambiguous(water(could be a need or rain/flood)),
     #fine as is or unclear.
     #Definitely room to improve model at this point.
 
 
-    df = df.drop(['missing_people','child_alone', 'death', 'refugees',\
-    'aid_related','other_aid', 'aid_centers','medical_help','medical_products',\
-    'hospitals','military','security', 'search_and_rescue','electricity','food',
-    'money','tools', 'clothing', 'shelter', 'buildings',\
-    'infrastructure_related', 'other_infrastructure', 'shops', 'transport',\
-    'weather_related','floods','storm', 'fire', 'earthquake', 'cold', \
-    'other_weather'], axis=1)
+    # df = df.drop(['missing_people','child_alone', 'death', 'refugees',\
+    # 'aid_related','other_aid', 'aid_centers','medical_help','medical_products',\
+    # 'hospitals','military','security', 'search_and_rescue','electricity','food',
+    # 'money','tools', 'clothing', 'shelter', 'buildings',\
+    # 'infrastructure_related', 'other_infrastructure', 'shops', 'transport',\
+    # 'weather_related','floods','storm', 'fire', 'earthquake', 'cold', \
+    # 'other_weather'], axis=1)
 
     # for col in df:
     #     df[col] = df[col].apply(lambda x: 1 if x >= 1 else 0)
+# –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
     return df
 def clean_data(df):
@@ -79,9 +83,12 @@ def clean_data(df):
     categories.columns = (categories.iloc[0,:].str.slice(stop=-2).tolist())
     #2.
     categories = categories.apply(lambda x: pd.to_numeric(x.str.slice(start=-1)))
-    # categories = categories[categories.related != 2]
-    categories = categories[categories['related']!= 2]
+
+    # –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+    # categories = categories[categories.related != 2] (for taxonomy)
     # categories = taxonomy(categories) #Needs work before deploying
+    # –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
     #3.
     df = df.drop('categories', axis=1)
     df = pd.concat([df, categories], axis=1)
@@ -96,7 +103,6 @@ def clean_data(df):
     #All other columns are also null
     #As odd group is relatively small I've chosen to remove values
 
-
     return df
 
 
@@ -110,7 +116,7 @@ def save_data(df, database_filename):
     '''
     engine = create_engine(f'sqlite:///{database_filename}')
     df.to_sql('DisasterResponse', engine, index=False, if_exists='replace')
-    
+
 
 
 def main():
