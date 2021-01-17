@@ -1,7 +1,11 @@
+#for data
 import json
 import plotly
 import pandas as pd
+from sqlalchemy import create_engine
+import joblib
 
+#for tokenize function
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
@@ -9,10 +13,10 @@ from nltk.stem.porter import PorterStemmer
 import nltk
 nltk.download(['punkt', 'wordnet', 'stopwords'])
 
+#for web app
 from flask import Flask
 from flask import render_template, request, jsonify
-from sqlalchemy import create_engine
-import joblib
+
 from figures import return_figures
 
 app = Flask(__name__)
@@ -46,7 +50,6 @@ df = pd.read_sql(myQuery, engine)
 
 # load model
 model = joblib.load("../models/classifier.pkl")
-
 
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
