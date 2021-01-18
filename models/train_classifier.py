@@ -19,7 +19,9 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.multioutput import MultiOutputClassifier
 
-class StartingVerbExtractor():
+from sklearn.base import BaseEstimator, TransformerMixin
+
+class StartingVerbExtractor(BaseEstimator, TransformerMixin):
     """
     Creates Verb Extractor class
 

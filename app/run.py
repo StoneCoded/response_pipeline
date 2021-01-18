@@ -20,8 +20,9 @@ from flask import render_template, request, jsonify
 
 from figures import return_figures
 
+from sklearn.base import BaseEstimator, TransformerMixin
 app = Flask(__name__)
-class StartingVerbExtractor():
+class StartingVerbExtractor(BaseEstimator, TransformerMixin):
     """
     Creates Verb Extractor class
 
