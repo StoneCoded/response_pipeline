@@ -13,12 +13,11 @@ nltk.download(['punkt', 'wordnet', 'stopwords', 'averaged_perceptron_tagger'])
 #for model
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.svm import SVC
 
 class StartingVerbExtractor():
     """
