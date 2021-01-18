@@ -9,15 +9,40 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import nltk
-nltk.download(['punkt', 'wordnet', 'stopwords'])
+nltk.download(['punkt', 'wordnet', 'stopwords', 'averaged_perceptron_tagger'])
 #for model
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.multioutput import MultiOutputClassifier
+from sklearn.svm import SVC
+
+class StartingVerbExtractor():
+    """
+    Creates Verb Extractor class
+
+    Get the starting verb of each sentence making a new feature
+    for the classifier later on.
+    """
+
+    def starting_verb(self, text):
+        sentence_list = nltk.sent_tokenize(text)
+        for sentence in sentence_list:
+            pos_tags = nltk.pos_tag(tokenize(sentence))
+            first_word, first_tag = pos_tags[0]
+            if first_tag in ['VB', 'VBP'] or first_word == 'RT':
+                return True
+        return False
+
+    def fit(self, x, y=None):
+        return self
+
+    def transform(self, X):
+        X_tagged = pd.Series(X).apply(self.starting_verb)
+        return pd.DataFrame(X_tagged)
 
 def load_data(database_filepath):
     '''
@@ -54,30 +79,33 @@ def tokenize(text, stop = True):
     #Stem, lem, lower and strip
     clean_tokens = []
     for tok in tokens:
-        tok = PorterStemmer().stem(tok)
+        # tok = PorterStemmer().stem(tok) I'm not allowed to stem :(
         tok = WordNetLemmatizer().lemmatize(tok).lower().strip()
         clean_tokens.append(tok)
     return tokens
 
 def build_model():
-    '''
-    Builds pipeline model,
-    uses GridSearchCV to refine model
-    returns model ready for fitting to data.
-    '''
     pipeline = Pipeline([
-        ('vect', CountVectorizer(tokenizer=tokenize)),
-        ('tfidf', TfidfTransformer()),
-        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+        ('features', FeatureUnion([
+
+            ('text_pipeline', Pipeline([
+                ('vect', CountVectorizer(tokenizer=tokenize)),
+                ('tfidf', TfidfTransformer())
+            ])),
+
+            ('starting_verb', StartingVerbExtractor())
+        ])),
+
+        ('clf', MultiOutputClassifier(AdaBoostClassifier()))
     ])
+# pipeline.get_params()
+
 
     # small set of parameters because of time
-    parameters = {
-        'clf__estimator__n_estimators': [30, 60],
-        'clf__estimator__min_samples_split': [2, 4]
-    }
+    parameters = {'clf__estimator__n_estimators' : [60, 80]}
 
     cv = GridSearchCV(pipeline, param_grid=parameters, verbose=10)
+
     return cv
 
 def evaluate_model(model, X_test, y_test, labels):

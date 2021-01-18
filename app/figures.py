@@ -3,6 +3,7 @@ import pandas as pd
 #for tokenize function
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import nltk

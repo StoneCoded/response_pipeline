@@ -3,6 +3,7 @@
 Creates a natural language processing model for prediction in disaster response
 web app.
 
+See screenshot folder for example of search result and category detection
 
 ### Table of Contents
 
