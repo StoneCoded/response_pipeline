@@ -1,3 +1,6 @@
+
+![Intro Pic](screenshots/intro.png)
+
 # Disaster Response Pipeline Project
 
 Creates a natural language processing model for prediction in disaster response
